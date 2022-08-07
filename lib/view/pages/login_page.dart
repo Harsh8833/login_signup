@@ -1,23 +1,61 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
+import 'package:login_signup/utils/auth.dart';
+import 'package:login_signup/view/pages/home_page.dart';
 import 'package:login_signup/view/pages/register_page.dart';
 import 'package:login_signup/view/pages/social_button.dart';
 import 'package:login_signup/view/widgets/buttons.dart';
 import 'package:login_signup/view/widgets/frostedBg.dart';
 import 'package:login_signup/view/widgets/input_container.dart';
+import 'package:login_signup/view/widgets/loading.dart';
+import 'package:login_signup/view/widgets/showMessage.dart';
 
 TextEditingController emailController = TextEditingController();
 TextEditingController passController = TextEditingController();
+
+var firebaseUser = FirebaseAuth.instance.currentUser;
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Future showLoading(text) async {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Container(
+              height: 100,
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: AppColor.primary,
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Text(text),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     final totalWidth = MediaQuery.of(context).size.width;
     final totalHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -96,7 +134,39 @@ class LoginPage extends StatelessWidget {
             ),
             AppButton(
               text: "Sign In",
-              onTap: () {},
+              onTap: () {
+                showLoading("Signing in");
+                AuthenticationHelper()
+                    .signIn(
+                        email: emailController.text.toString(),
+                        password: passController.text.toString())
+                    .then((error) {
+                  if (error == null) {
+                    log('User Logging In...');
+                    if (AuthenticationHelper().user.emailVerified) {
+                      log('Email Verified!');
+                      log('Proceeding...');
+
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()));
+                    } else {
+                      Navigator.pop(context);
+                      log('Please verify email'); //Pop up required
+                      showMessage(
+                          "A verification link was sent to your email. Click on it to continue login. If you have not received the link, kindly press resend.",
+                          context);
+                      //Ok Button
+                      //Resend verification with on click methods
+                    }
+                  } else {
+                    Navigator.pop(context);
+                    showMessage(error.toString(), context); // Pop up required
+                  }
+                });
+              },
             ),
             SizedBox(
               height: totalHeight * .02,

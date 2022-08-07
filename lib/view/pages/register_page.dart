@@ -1,12 +1,19 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
+import 'package:login_signup/utils/auth.dart';
 import 'package:login_signup/view/widgets/buttons.dart';
 import 'package:login_signup/view/widgets/frostedBg.dart';
 import 'package:login_signup/view/widgets/input_container.dart';
+import 'package:login_signup/view/widgets/loading.dart';
+import 'package:login_signup/view/widgets/showMessage.dart';
 
 TextEditingController emailC = TextEditingController();
 TextEditingController nameC = TextEditingController();
@@ -14,6 +21,9 @@ TextEditingController phoneC = TextEditingController();
 TextEditingController passC = TextEditingController();
 TextEditingController rePassC = TextEditingController();
 TextEditingController regNoC = TextEditingController();
+
+var firebaseUser = FirebaseAuth.instance.currentUser;
+final firestoreInstance = FirebaseFirestore.instance;
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -23,6 +33,17 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  Future uploadFile(context) async {
+    await firestoreInstance.collection("users").doc(firebaseUser!.uid).set({
+      "name": nameC.text.toString(),
+      "phone": phoneC.text.toString(),
+      "email": emailC.text.toString(),
+    }).then((_) {
+      log('You Are Set! A verification email has been sent to your email address. Kindly click on it.');
+      Navigator.pop(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,7 +162,45 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-              AppButton(text: "Register", onTap: () {})
+              AppButton(
+                  text: "Register",
+                  onTap: () async {
+                    if (emailC.text.toString() != "" &&
+                        passC.text.toString() != "" &&
+                        nameC.text.toString() != "" &&
+                        phoneC.text.toString() != "" &&
+                        rePassC.text.toString() != "") {
+                      if (phoneC.text.toString().length < 10) {
+                        if (phoneC.text.toString().isEmpty) {
+                          log('Are you sure you want to continue without phone number');
+                          return;
+                        } else {
+                          log('Please enter a correct phone number');
+                        }
+                      }
+                      if (passC.text.toString() == rePassC.text.toString()) {
+                        AuthenticationHelper()
+                            .signUp(
+                                email: emailC.text.toString(),
+                                password: passC.text.toString())
+                            .then((error) {
+                          if (error == null) {
+                            uploadFile(context);
+                          } else {
+                            log('Error : $error');
+                            showMessage(error, context);
+                          }
+                        });
+                      } else {
+                        log("Passwords don't match!");
+                        showMessage("Passwords don't match!", context);
+                      }
+                    } else {
+                      log('Please fill all fields to continue');
+                      showMessage(
+                          'Please fill all fields to continue', context);
+                    }
+                  })
             ],
           )),
     )));
