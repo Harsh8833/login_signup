@@ -37,7 +37,16 @@ class AppTextStyle {
     color: AppColor.darkGrey,
     fontWeight: FontWeight.w600,
   );
-
+  static const dialogSmall = TextStyle(
+    fontSize: 14,
+    color: AppColor.darkGrey,
+    fontWeight: FontWeight.w500,
+  );
+  static const dialogTitle = TextStyle(
+    fontSize: 16,
+    color: AppColor.darkGrey,
+    fontWeight: FontWeight.w600,
+  );
   static const labelStyle = TextStyle(
     fontSize: 13,
     color: AppColor.grey,

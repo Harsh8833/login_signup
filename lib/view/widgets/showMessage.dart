@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:login_signup/cofig/textstyles.dart';
 
 void showMessage(String message, context) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Alert!"),
-          content: Text(message),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          title: const Text(
+            "Alert!",
+            style: AppTextStyle.dialogTitle,
+          ),
+          content: Text(
+            message,
+            style: AppTextStyle.dialogSmall,
+          ),
           actions: [
             TextButton(
               child: const Text("Ok"),

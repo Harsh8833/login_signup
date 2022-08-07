@@ -6,13 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
 import 'package:login_signup/utils/auth.dart';
+import 'package:login_signup/view/pages/login_page.dart';
+import 'package:login_signup/view/pages/onboarding_page.dart';
 import 'package:login_signup/view/widgets/buttons.dart';
 import 'package:login_signup/view/widgets/frostedBg.dart';
 import 'package:login_signup/view/widgets/input_container.dart';
-import 'package:login_signup/view/widgets/loading.dart';
 import 'package:login_signup/view/widgets/showMessage.dart';
 
 TextEditingController emailC = TextEditingController();
@@ -20,7 +22,6 @@ TextEditingController nameC = TextEditingController();
 TextEditingController phoneC = TextEditingController();
 TextEditingController passC = TextEditingController();
 TextEditingController rePassC = TextEditingController();
-TextEditingController regNoC = TextEditingController();
 
 var firebaseUser = FirebaseAuth.instance.currentUser;
 final firestoreInstance = FirebaseFirestore.instance;
@@ -39,13 +40,44 @@ class _RegisterPageState extends State<RegisterPage> {
       "phone": phoneC.text.toString(),
       "email": emailC.text.toString(),
     }).then((_) {
-      log('You Are Set! A verification email has been sent to your email address. Kindly click on it.');
+      showMessage(
+          'You Are Set! A verification email has been sent to your email address. Kindly click on it.',
+          context);
       Navigator.pop(context);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    Future showLoading(text) async {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Container(
+              height: 100,
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    color: AppColor.primary,
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Text(text),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
         body: FrostedBackground(
             child: SafeArea(
@@ -54,36 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             children: [
               const SizedBox(
-                height: 60,
-              ),
-              GestureDetector(
-                onTap: () {
-                  //do what you want here
-                },
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const CircleAvatar(
-                      radius: 60,
-                      // backgroundImage:
-                      //     const AssetImage("assets/images/profile-icon.png"),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    Positioned(
-                      bottom: -10,
-                      right: -10,
-                      child: MaterialButton(
-                        child: const Icon(
-                          Icons.edit,
-                          color: AppColor.primary,
-                        ),
-                        onPressed: () {}, // Display Picture Button,
-                        shape: const CircleBorder(side: BorderSide.none),
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
-                ),
+                height: 100,
               ),
               const Text(
                 "Sign Up",
@@ -179,6 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                       }
                       if (passC.text.toString() == rePassC.text.toString()) {
+                        showLoading("Registering");
                         AuthenticationHelper()
                             .signUp(
                                 email: emailC.text.toString(),
@@ -186,16 +190,30 @@ class _RegisterPageState extends State<RegisterPage> {
                             .then((error) {
                           if (error == null) {
                             uploadFile(context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const OnBoardingPage()));
+                            resetFeilds();
+                            showMessage(
+                                "Verification e-mail has been sent to given e-mail address please verify and Sign in using your e-mail and password.",
+                                context);
                           } else {
+                            Navigator.pop(context);
                             log('Error : $error');
-                            showMessage(error, context);
+                            showMessage(error.toString(), context);
                           }
                         });
                       } else {
+                        Navigator.pop(context);
+
                         log("Passwords don't match!");
                         showMessage("Passwords don't match!", context);
                       }
                     } else {
+                      Navigator.pop(context);
+
                       log('Please fill all fields to continue');
                       showMessage(
                           'Please fill all fields to continue', context);

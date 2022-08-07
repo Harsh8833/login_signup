@@ -8,23 +8,40 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
 import 'package:login_signup/utils/auth.dart';
+import 'package:login_signup/utils/services.dart';
 import 'package:login_signup/view/pages/home_page.dart';
+import 'package:login_signup/view/pages/pwd_resetpage.dart';
 import 'package:login_signup/view/pages/register_page.dart';
 import 'package:login_signup/view/pages/social_button.dart';
 import 'package:login_signup/view/widgets/buttons.dart';
 import 'package:login_signup/view/widgets/frostedBg.dart';
 import 'package:login_signup/view/widgets/input_container.dart';
-import 'package:login_signup/view/widgets/loading.dart';
 import 'package:login_signup/view/widgets/showMessage.dart';
 
 TextEditingController emailController = TextEditingController();
 TextEditingController passController = TextEditingController();
 
+void resetFeilds() {
+  emailController.text = "";
+  passController.text = "";
+  emailC.text = "";
+  nameC.text = "";
+  phoneC.text = "";
+  passC.text = "";
+  rePassC.text = "";
+}
+
 var firebaseUser = FirebaseAuth.instance.currentUser;
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool obscure = true;
   @override
   Widget build(BuildContext context) {
     Future showLoading(text) async {
@@ -96,19 +113,37 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             InputContainer(
-              child: TextField(
-                controller: passController,
-                obscureText: true,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    labelText: 'Password',
-                    labelStyle: AppTextStyle.labelStyle,
-                    floatingLabelStyle: TextStyle(color: AppColor.primary),
-                    suffixIcon: Icon(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: totalWidth * 0.65,
+                    child: TextField(
+                      controller: passController,
+                      obscureText: obscure,
+                      textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        labelText: 'Password',
+                        labelStyle: AppTextStyle.labelStyle,
+                        floatingLabelStyle: TextStyle(color: AppColor.primary),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: (() {
+                      setState(() {
+                        obscure = !obscure;
+                      });
+                    }),
+                    child: Icon(
                       Icons.visibility_off_outlined,
                       size: 20,
-                    )),
+                      color: (obscure) ? AppColor.darkGrey : AppColor.primary,
+                    ),
+                  )
+                ],
               ),
             ),
             SizedBox(
@@ -118,7 +153,12 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PwdResetPage()));
+                  },
                   child: const Text(
                     "Recovery Password",
                     style: AppTextStyle.bodySmall,
@@ -152,6 +192,7 @@ class LoginPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const HomePage()));
+                      resetFeilds();
                     } else {
                       Navigator.pop(context);
                       log('Please verify email'); //Pop up required
@@ -184,7 +225,23 @@ class LoginPage extends StatelessWidget {
             ]),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SocialButton(
-                  onTap: () {},
+                  onTap: () async {
+                    log("GOOLE LOGIN");
+                    FirebaseService service = FirebaseService();
+                    try {
+                      showLoading(context);
+                      String? Check = await service.signInwithGoogle();
+                      log('\n\nCheck is ${Check.toString()}\n\n');
+
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
+                    } catch (e) {
+                      Navigator.pop(context);
+                      if (e is FirebaseAuthException) {
+                        showMessage(e.message!, context);
+                      }
+                    }
+                  },
                   icon: Image.asset(
                     'assets/google_icon.png',
                     height: 25,
