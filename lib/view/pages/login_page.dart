@@ -1,0 +1,162 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/key.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:login_signup/cofig/colors.dart';
+import 'package:login_signup/cofig/textstyles.dart';
+import 'package:login_signup/view/pages/register_page.dart';
+import 'package:login_signup/view/pages/social_button.dart';
+import 'package:login_signup/view/widgets/buttons.dart';
+import 'package:login_signup/view/widgets/frostedBg.dart';
+import 'package:login_signup/view/widgets/input_container.dart';
+
+TextEditingController emailController = TextEditingController();
+TextEditingController passController = TextEditingController();
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final totalWidth = MediaQuery.of(context).size.width;
+    final totalHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: FrostedBackground(
+          child: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(children: [
+            SizedBox(
+              height: totalHeight * .08,
+            ),
+            const Text(
+              "Hello Again!",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.displayMedium,
+            ),
+            SizedBox(
+              height: totalHeight * .01,
+            ),
+            const Text(
+              "Welcome back you've\nbeen missed!",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodyMedium,
+            ),
+            SizedBox(
+              height: totalHeight * .05,
+            ),
+            InputContainer(
+              child: TextField(
+                controller: emailController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  labelText: 'Enter username',
+                  labelStyle: AppTextStyle.labelStyle,
+                  floatingLabelStyle: TextStyle(color: AppColor.primary),
+                ),
+              ),
+            ),
+            InputContainer(
+              child: TextField(
+                controller: passController,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    labelText: 'Password',
+                    labelStyle: AppTextStyle.labelStyle,
+                    floatingLabelStyle: TextStyle(color: AppColor.primary),
+                    suffixIcon: Icon(
+                      Icons.visibility_off_outlined,
+                      size: 20,
+                    )),
+              ),
+            ),
+            SizedBox(
+              height: totalHeight * .01,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {},
+                  child: const Text(
+                    "Recovery Password",
+                    style: AppTextStyle.bodySmall,
+                  ),
+                ),
+                const SizedBox(
+                  width: 40,
+                )
+              ],
+            ),
+            SizedBox(
+              height: totalHeight * .025,
+            ),
+            AppButton(
+              text: "Sign In",
+              onTap: () {},
+            ),
+            SizedBox(
+              height: totalHeight * .02,
+            ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SizedBox(width: totalWidth * 0.3, child: const Divider()),
+              const Text(
+                "Or continue with",
+                style: AppTextStyle.bodySmall,
+              ),
+              SizedBox(
+                height: totalHeight * 0.12,
+              ),
+              SizedBox(width: totalWidth * 0.3, child: const Divider()),
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SocialButton(
+                  onTap: () {},
+                  icon: Image.asset(
+                    'assets/google_icon.png',
+                    height: 25,
+                  )),
+              SocialButton(
+                  onTap: () {},
+                  icon: Image.asset(
+                    'assets/apple_icon.png',
+                    height: 28,
+                  )),
+              SocialButton(
+                  onTap: () {},
+                  icon: const Icon(
+                    Icons.facebook,
+                    color: Colors.blue,
+                    size: 32,
+                  )),
+            ]),
+            SizedBox(
+              height: totalHeight * 0.05,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Not a member?", style: AppTextStyle.bodySmall),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterPage()));
+                    },
+                    child: const Text(
+                      "Register Now",
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    ))
+              ],
+            )
+          ]),
+        ),
+      )),
+    );
+  }
+}

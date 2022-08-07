@@ -15,9 +15,28 @@ class FrostedBackground extends StatelessWidget {
 
     return Stack(
       children: [
+        SizedBox.expand(
+          child: Container(color: AppColor.background),
+        ),
         Positioned(
           bottom: totalHeight * .2,
           left: totalWidth * 0.2,
+          child: SvgPicture.asset(
+            "assets/RRect_fill.svg",
+            color: AppColor.frostedBackgroundColor,
+          ),
+        ),
+        Positioned(
+          top: totalHeight * .2,
+          right: totalWidth * 0.2,
+          child: SvgPicture.asset(
+            "assets/RRect_fill.svg",
+            color: AppColor.frostedBackgroundColor,
+          ),
+        ),
+        Positioned(
+          top: totalHeight * .5,
+          right: totalWidth * 0.2,
           child: SvgPicture.asset(
             "assets/RRect_fill.svg",
             color: AppColor.frostedBackgroundColor,
@@ -27,7 +46,7 @@ class FrostedBackground extends StatelessWidget {
           height: totalHeight,
           width: totalWidth,
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 30),
+            filter: ImageFilter.blur(sigmaX: 150, sigmaY: 130),
             child: SizedBox(
               height: totalHeight,
             ),
