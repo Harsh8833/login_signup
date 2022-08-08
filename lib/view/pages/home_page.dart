@@ -96,12 +96,14 @@ class HomePage extends StatelessWidget {
                       onTap: () async {
                         showLoading("Logging out");
                         try {
-                          await _firebaseService.signOut().then((value) =>
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const OnBoardingPage())));
+                          await _firebaseService.signOut().then((value) {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const OnBoardingPage()));
+                          });
                         } catch (e) {
                           log(e.toString());
                         }

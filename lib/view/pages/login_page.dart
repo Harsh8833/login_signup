@@ -225,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                     try {
                       await _firebaseService.signInwithGoogle();
                       //showLoading(context);
+                      Navigator.pop(context);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
                     } catch (e) {
@@ -247,10 +248,13 @@ class _LoginPageState extends State<LoginPage> {
               SocialButton(
                   onTap: () async {
                     try {
+                      showLoading("loading");
                       log("Login with Facebook");
-                      _firebaseService.signInWithFacebook();
-                    } catch (e) {
+                      await _firebaseService.signInWithFacebook();
                       Navigator.pop(context);
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
+                    } catch (e) {
                       if (e is FirebaseAuthException) {
                         showMessage(e.message!, context);
                       }

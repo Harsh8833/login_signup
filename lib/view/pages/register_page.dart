@@ -184,14 +184,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
                         });
                       } else {
-                        Navigator.pop(context);
-
                         log("Passwords don't match!");
                         showMessage("Passwords don't match!", context);
                       }
                     } else {
-                      Navigator.pop(context);
-
                       log('Please fill all fields to continue');
                       showMessage(
                           'Please fill all fields to continue', context);
