@@ -225,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                     try {
                       await _firebaseService.signInwithGoogle();
                       //showLoading(context);
+                      if (!mounted) return;
                       Navigator.pop(context);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
@@ -251,6 +252,7 @@ class _LoginPageState extends State<LoginPage> {
                       showLoading("loading");
                       log("Login with Facebook");
                       await _firebaseService.signInWithFacebook();
+                      if (!mounted) return;
                       Navigator.pop(context);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
