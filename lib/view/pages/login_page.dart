@@ -1,13 +1,9 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
-import 'package:login_signup/utils/auth.dart';
 import 'package:login_signup/utils/services.dart';
 import 'package:login_signup/view/pages/home_page.dart';
 import 'package:login_signup/view/pages/pwd_resetpage.dart';
@@ -42,6 +38,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool obscure = true;
+  final _firebaseService = FirebaseService();
   @override
   Widget build(BuildContext context) {
     Future showLoading(text) async {
@@ -176,22 +173,20 @@ class _LoginPageState extends State<LoginPage> {
               text: "Sign In",
               onTap: () {
                 showLoading("Signing in");
-                AuthenticationHelper()
+                _firebaseService
                     .signIn(
                         email: emailController.text.toString(),
                         password: passController.text.toString())
                     .then((error) {
                   if (error == null) {
                     log('User Logging In...');
-                    if (AuthenticationHelper().user.emailVerified) {
+                    if (_firebaseService.user.emailVerified) {
                       log('Email Verified!');
                       log('Proceeding...');
 
                       Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()));
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
                       resetFeilds();
                     } else {
                       Navigator.pop(context);
@@ -227,12 +222,9 @@ class _LoginPageState extends State<LoginPage> {
               SocialButton(
                   onTap: () async {
                     log("GOOLE LOGIN");
-                    FirebaseService service = FirebaseService();
                     try {
-                      showLoading(context);
-                      String? Check = await service.signInwithGoogle();
-                      log('\n\nCheck is ${Check.toString()}\n\n');
-
+                      await _firebaseService.signInwithGoogle();
+                      //showLoading(context);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
                     } catch (e) {
@@ -253,7 +245,17 @@ class _LoginPageState extends State<LoginPage> {
                     height: 28,
                   )),
               SocialButton(
-                  onTap: () {},
+                  onTap: () async {
+                    try {
+                      log("Login with Facebook");
+                      _firebaseService.signInWithFacebook();
+                    } catch (e) {
+                      Navigator.pop(context);
+                      if (e is FirebaseAuthException) {
+                        showMessage(e.message!, context);
+                      }
+                    }
+                  },
                   icon: const Icon(
                     Icons.facebook,
                     color: Colors.blue,

@@ -1,15 +1,9 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
-import 'package:login_signup/utils/auth.dart';
+import 'package:login_signup/utils/services.dart';
 import 'package:login_signup/view/pages/login_page.dart';
 import 'package:login_signup/view/pages/onboarding_page.dart';
 import 'package:login_signup/view/widgets/buttons.dart';
@@ -23,9 +17,6 @@ TextEditingController phoneC = TextEditingController();
 TextEditingController passC = TextEditingController();
 TextEditingController rePassC = TextEditingController();
 
-var firebaseUser = FirebaseAuth.instance.currentUser;
-final firestoreInstance = FirebaseFirestore.instance;
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -34,19 +25,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  Future uploadFile(context) async {
-    await firestoreInstance.collection("users").doc(firebaseUser!.uid).set({
-      "name": nameC.text.toString(),
-      "phone": phoneC.text.toString(),
-      "email": emailC.text.toString(),
-    }).then((_) {
-      showMessage(
-          'You Are Set! A verification email has been sent to your email address. Kindly click on it.',
-          context);
-      Navigator.pop(context);
-    });
-  }
-
+  final _firebaseService = FirebaseService();
   @override
   Widget build(BuildContext context) {
     Future showLoading(text) async {
@@ -183,13 +162,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       }
                       if (passC.text.toString() == rePassC.text.toString()) {
                         showLoading("Registering");
-                        AuthenticationHelper()
+                        _firebaseService
                             .signUp(
                                 email: emailC.text.toString(),
                                 password: passC.text.toString())
                             .then((error) {
                           if (error == null) {
-                            uploadFile(context);
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
