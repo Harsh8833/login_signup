@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:login_signup/cofig/colors.dart';
 import 'package:login_signup/cofig/textstyles.dart';
 import 'package:login_signup/utils/services.dart';
@@ -45,38 +46,70 @@ class HomePage extends StatelessWidget {
     var user = _firebaseService.getAuth().currentUser;
     return Scaffold(
       body: FrostedBackground(
-        child: Center(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 250,
+        child: Stack(
+          children: [
+            Positioned(
+              top: -120,
+              left: -180,
+              child: SvgPicture.asset(
+                "assets/Frame.svg",
+                color: AppColor.primary.withOpacity(0.1),
+                height: 300,
               ),
-              Image.network(user!.photoURL.toString()),
-              Text(
-                "Hey you are logged in ${user.displayName}",
-                style: AppTextStyle.displayLarge,
+            ),
+            Positioned(
+              bottom: -10,
+              right: -100,
+              child: SvgPicture.asset(
+                "assets/Frame1.svg",
+                color: AppColor.primary.withOpacity(0.15),
+                height: 200,
               ),
-              const SizedBox(
-                height: 50,
+            ),
+            Center(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 250,
+                  ),
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.network(user!.photoURL.toString())),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Hey! ${user.displayName}",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.displayLarge,
+                  ),
+                  Text(
+                    "${user.email}",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.buttonDark,
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  AppButton(
+                      text: "Logout",
+                      onTap: () async {
+                        showLoading("Logging out");
+                        try {
+                          await _firebaseService.signOut().then((value) =>
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const OnBoardingPage())));
+                        } catch (e) {
+                          log(e.toString());
+                        }
+                      }),
+                ],
               ),
-              AppButton(
-                  text: "Logout",
-                  onTap: () async {
-                    showLoading("Logging out");
-
-                    try {
-                      await _firebaseService.signOut().then((value) =>
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const OnBoardingPage())));
-                    } catch (e) {
-                      log(e.toString());
-                    }
-                  }),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
